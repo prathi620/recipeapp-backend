@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe API - Interactive Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .api-info {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .api-info h2 {
+            color: #764ba2;
+            margin-bottom: 15px;
+        }
+
+        .endpoint {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .endpoint:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .endpoint h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .method {
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .method.post {
+            background: #10b981;
+        }
+
+        .method.get {
+            background: #3b82f6;
+        }
+
+        .method.put {
+            background: #f59e0b;
+        }
+
+        .method.delete {
+            background: #ef4444;
+        }
+
+        .endpoint-url {
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 15px;
+            color: #1f2937;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin-bottom: 15px;
+            resize: vertical;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .response {
+            background: #1f2937;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .response.show {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-indicator.online {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+
+        .recipes-list {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .recipe-card {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .recipe-card h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .recipe-meta {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍳 Recipe API Interactive Tester</h1>
+            <p><span class="status-indicator online"></span>Server Status: <strong>Online</strong> at
+                http://localhost:5000</p>
+        </div>
+
+        <div class="api-info">
+            <h2>📡 Available Endpoints</h2>
+            <p>Test all CRUD operations for the Recipe API directly from your browser!</p>
+        </div>
+
+        <!-- Get All Recipes -->
+        <div class="endpoint">
+            <h3><span class="method get">GET</span> Get All Recipes</h3>
+            <div class="endpoint-url">/api/recipes</div>
+            <button onclick="getAllRecipes()">🔍 Fetch All Recipes</button>
+            <div id="getAllResponse" class="response"></div>
+        </div>
+
+        <!-- Create Recipe -->
+        <div class="endpoint">
+            <h3><span class="method post">POST</span> Create New Recipe</h3>
+            <div class="endpoint-url">/api/recipes</div>
+            <textarea id="createRecipeData" placeholder="Enter recipe JSON data...">{
+  "name": "Chocolate Chip Cookies",
+  "ingredients": [
+    "2 cups all-purpose flour",
+    "1 cup butter, softened",
+    "1 cup granulated sugar",
+    "2 large eggs",
+    "2 cups chocolate chips",
+    "1 tsp vanilla extract",
+    "1 tsp baking soda",
+    "1/2 tsp salt"
+  ],
+  "instructions": "Preheat oven to 350°F (175°C). Cream together butter and sugar. Beat in eggs and vanilla. Combine flour, baking soda, and salt; stir into creamed mixture. Mix in chocolate chips. Drop rounded tablespoons onto ungreased cookie sheets. Bake for 10-12 minutes or until golden brown.",
+  "prepTime": 15,
+  "cookTime": 12,
+  "servings": 24,
+  "category": "dessert",
+  "difficulty": "easy"
+}</textarea>
+            <button onclick="createRecipe()">➕ Create Recipe</button>
+            <div id="createResponse" class="response"></div>
+        </div>
+
+        <!-- Get Recipe by ID -->
+        <div class="endpoint">
+            <h3><span class="method get">GET</span> Get Recipe by ID</h3>
+            <div class="endpoint-url">/api/recipes/:id</div>
+            <div class="input-group">
+                <label>Recipe ID:</label>
+                <input type="text" id="getRecipeId" placeholder="Enter recipe ID (e.g., 6571234567890abcdef12345)">
+            </div>
+            <button onclick="getRecipeById()">🔍 Get Recipe</button>
+            <div id="getByIdResponse" class="response"></div>
+        </div>
+
+        <!-- Update Recipe -->
+        <div class="endpoint">
+            <h3><span class="method put">PUT</span> Update Recipe</h3>
+            <div class="endpoint-url">/api/recipes/:id</div>
+            <div class="input-group">
+                <label>Recipe ID:</label>
+                <input type="text" id="updateRecipeId" placeholder="Enter recipe ID to update">
+            </div>
+            <textarea id="updateRecipeData" placeholder="Enter updated recipe data...">{
+  "servings": 30,
+  "difficulty": "medium"
+}</textarea>
+            <button onclick="updateRecipe()">✏️ Update Recipe</button>
+            <div id="updateResponse" class="response"></div>
+        </div>
+
+        <!-- Delete Recipe -->
+        <div class="endpoint">
+            <h3><span class="method delete">DELETE</span> Delete Recipe</h3>
+            <div class="endpoint-url">/api/recipes/:id</div>
+            <div class="input-group">
+                <label>Recipe ID:</label>
+                <input type="text" id="deleteRecipeId" placeholder="Enter recipe ID to delete">
+            </div>
+            <button onclick="deleteRecipe()">🗑️ Delete Recipe</button>
+            <div id="deleteResponse" class="response"></div>
+        </div>
+
+        <!-- Recipes List Display -->
+        <div id="recipesList" class="recipes-list" style="display: none;">
+            <h2>📋 Current Recipes</h2>
+            <div id="recipesContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api/recipes';
+
+        function showResponse(elementId, data, status) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.classList.add('show');
+
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                element.classList.remove('show');
+            }, 10000);
+        }
+
+        async function getAllRecipes() {
+            try {
+                const response = await fetch(API_BASE);
+                const data = await response.json();
+                showResponse('getAllResponse', data, response.status);
+
+                // Display recipes in a nice format
+                if (data.success && data.data.length > 0) {
+                    displayRecipes(data.data);
+                }
+            } catch (error) {
+                showResponse('getAllResponse', { error: error.message }, 500);
+            }
+        }
+
+        async function createRecipe() {
+            try {
+                const recipeData = JSON.parse(document.getElementById('createRecipeData').value);
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(recipeData)
+                });
+                const data = await response.json();
+                showResponse('createResponse', data, response.status);
+
+                // Refresh the recipes list
+                if (data.success) {
+                    setTimeout(getAllRecipes, 1000);
+                }
+            } catch (error) {
+                showResponse('createResponse', { error: error.message }, 500);
+            }
+        }
+
+        async function getRecipeById() {
+            try {
+                const recipeId = document.getElementById('getRecipeId').value;
+                if (!recipeId) {
+                    alert('Please enter a recipe ID');
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/${recipeId}`);
+                const data = await response.json();
+                showResponse('getByIdResponse', data, response.status);
+            } catch (error) {
+                showResponse('getByIdResponse', { error: error.message }, 500);
+            }
+        }
+
+        async function updateRecipe() {
+            try {
+                const recipeId = document.getElementById('updateRecipeId').value;
+                if (!recipeId) {
+                    alert('Please enter a recipe ID');
+                    return;
+                }
+
+                const updateData = JSON.parse(document.getElementById('updateRecipeData').value);
+                const response = await fetch(`${API_BASE}/${recipeId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                const data = await response.json();
+                showResponse('updateResponse', data, response.status);
+
+                // Refresh the recipes list
+                if (data.success) {
+                    setTimeout(getAllRecipes, 1000);
+                }
+            } catch (error) {
+                showResponse('updateResponse', { error: error.message }, 500);
+            }
+        }
+
+        async function deleteRecipe() {
+            try {
+                const recipeId = document.getElementById('deleteRecipeId').value;
+                if (!recipeId) {
+                    alert('Please enter a recipe ID');
+                    return;
+                }
+
+                if (!confirm('Are you sure you want to delete this recipe?')) {
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/${recipeId}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                showResponse('deleteResponse', data, response.status);
+
+                // Refresh the recipes list
+                if (data.success) {
+                    setTimeout(getAllRecipes, 1000);
+                }
+            } catch (error) {
+                showResponse('deleteResponse', { error: error.message }, 500);
+            }
+        }
+
+        function displayRecipes(recipes) {
+            const container = document.getElementById('recipesContainer');
+            const listDiv = document.getElementById('recipesList');
+
+            if (recipes.length === 0) {
+                listDiv.style.display = 'none';
+                return;
+            }
+
+            listDiv.style.display = 'block';
+            container.innerHTML = recipes.map(recipe => `
+                <div class="recipe-card">
+                    <h4>${recipe.name}</h4>
+                    <div class="recipe-meta">
+                        <strong>ID:</strong> ${recipe._id}<br>
+                        <strong>Category:</strong> ${recipe.category || 'N/A'} | 
+                        <strong>Difficulty:</strong> ${recipe.difficulty || 'N/A'} | 
+                        <strong>Servings:</strong> ${recipe.servings || 'N/A'}<br>
+                        <strong>Prep Time:</strong> ${recipe.prepTime || 0} min | 
+                        <strong>Cook Time:</strong> ${recipe.cookTime || 0} min
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load recipes on page load
+        window.addEventListener('load', getAllRecipes);
+    </script>
+</body>
+
+</html>
